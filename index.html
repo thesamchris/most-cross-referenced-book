@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bible Cross-Reference Finder</title>
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;400;700;900&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use the Inter font
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+      darkMode: 'media', // Use system preference for dark mode
+    }
+  </script>
+</head>
+<body class="font-sans bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Bible Cross-Reference Finder</h1>
+    <div class="mb-6">
+      <label for="bookSelect" class="block text-lg font-medium mb-2">Select a Book:</label>
+      <div class="flex items-center space-x-4">
+        <div class="relative w-full md:w-1/2">
+          <select id="bookSelect" class="block appearance-none w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-md py-2 px-3 pr-8 shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <option value="">Select a book</option>
+          <!-- Old Testament -->
+          <optgroup label="Old Testament">
+            <option value="Gen">Genesis</option>
+            <option value="Exod">Exodus</option>
+            <option value="Lev">Leviticus</option>
+            <option value="Num">Numbers</option>
+            <option value="Deut">Deuteronomy</option>
+            <option value="Josh">Joshua</option>
+            <option value="Judg">Judges</option>
+            <option value="Ruth">Ruth</option>
+            <option value="1Sam">1 Samuel</option>
+            <option value="2Sam">2 Samuel</option>
+            <option value="1Kgs">1 Kings</option>
+            <option value="2Kgs">2 Kings</option>
+            <option value="1Chr">1 Chronicles</option>
+            <option value="2Chr">2 Chronicles</option>
+            <option value="Ezra">Ezra</option>
+            <option value="Neh">Nehemiah</option>
+            <option value="Esth">Esther</option>
+            <option value="Job">Job</option>
+            <option value="Ps">Psalms</option>
+            <option value="Prov">Proverbs</option>
+            <option value="Eccl">Ecclesiastes</option>
+            <option value="Song">Song of Solomon</option>
+            <option value="Isa">Isaiah</option>
+            <option value="Jer">Jeremiah</option>
+            <option value="Lam">Lamentations</option>
+            <option value="Ezek">Ezekiel</option>
+            <option value="Dan">Daniel</option>
+            <option value="Hos">Hosea</option>
+            <option value="Joel">Joel</option>
+            <option value="Amos">Amos</option>
+            <option value="Obad">Obadiah</option>
+            <option value="Jonah">Jonah</option>
+            <option value="Mic">Micah</option>
+            <option value="Nah">Nahum</option>
+            <option value="Hab">Habakkuk</option>
+            <option value="Zeph">Zephaniah</option>
+            <option value="Hag">Haggai</option>
+            <option value="Zech">Zechariah</option>
+            <option value="Mal">Malachi</option>
+          </optgroup>
+          <!-- New Testament -->
+          <optgroup label="New Testament">
+            <option value="Matt">Matthew</option>
+            <option value="Mark">Mark</option>
+            <option value="Luke">Luke</option>
+            <option value="John">John</option>
+            <option value="Acts">Acts</option>
+            <option value="Rom">Romans</option>
+            <option value="1Cor">1 Corinthians</option>
+            <option value="2Cor">2 Corinthians</option>
+            <option value="Gal">Galatians</option>
+            <option value="Eph">Ephesians</option>
+            <option value="Phil">Philippians</option>
+            <option value="Col">Colossians</option>
+            <option value="1Thess">1 Thessalonians</option>
+            <option value="2Thess">2 Thessalonians</option>
+            <option value="1Tim">1 Timothy</option>
+            <option value="2Tim">2 Timothy</option>
+            <option value="Titus">Titus</option>
+            <option value="Phlm">Philemon</option>
+            <option value="Heb">Hebrews</option>
+            <option value="Jas">James</option>
+            <option value="1Pet">1 Peter</option>
+            <option value="2Pet">2 Peter</option>
+            <option value="1John">1 John</option>
+            <option value="2John">2 John</option>
+            <option value="3John">3 John</option>
+            <option value="Jude">Jude</option>
+            <option value="Rev">Revelation</option>
+          </optgroup>
+        </select>
+        <!-- Custom dropdown arrow icon -->
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+          <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Search</button>
+      </div>
+    </div>
+    <div id="results" class="mt-8"></div>
+  </div>
+
+  <script>
+    // Helper function to get the book name from a verse reference
+    function getBookName(verseRef) {
+      if (!verseRef || typeof verseRef !== 'string') return '';
+      return verseRef.split('.')[0];
+    }
+
+    // Helper function to check if a book is in the Old Testament
+    function isOldTestament(book) {
+      const oldTestamentBooks = ['Gen', 'Exod', 'Lev', 'Num', 'Deut', 'Josh', 'Judg', 'Ruth', '1Sam', '2Sam', '1Kgs', '2Kgs', '1Chr', '2Chr', 'Ezra', 'Neh', 'Esth', 'Job', 'Ps', 'Prov', 'Eccl', 'Song', 'Isa', 'Jer', 'Lam', 'Ezek', 'Dan', 'Hos', 'Joel', 'Amos', 'Obad', 'Jonah', 'Mic', 'Nah', 'Hab', 'Zeph', 'Hag', 'Zech', 'Mal'];
+      return oldTestamentBooks.includes(book);
+    }
+
+    // Updated searchCrossReferences function
+    async function searchCrossReferences() {
+      const select = document.getElementById('bookSelect');
+      const inputBook = select.value;
+      const inputBookName = select.options[select.selectedIndex].text;
+
+      if (!inputBook) {
+        alert('Please select a book.');
+        return;
+      }
+
+      const dataStr = await loadData();
+      const data = parseData(dataStr);
+
+      const references = {
+        oldTestament: {},
+        newTestament: {}
+      };
+
+      data.forEach(item => {
+        const fromBook = getBookName(item.fromVerse);
+        const toBook = getBookName(item.toVerse);
+
+        if (fromBook === inputBook) {
+          const category = isOldTestament(toBook) ? 'oldTestament' : 'newTestament';
+          if (toBook !== inputBook) {
+            references[category][toBook] = (references[category][toBook] || 0) + 1;
+          }
+        }
+        if (toBook === inputBook) {
+          const category = isOldTestament(fromBook) ? 'oldTestament' : 'newTestament';
+          if (fromBook !== inputBook) {
+            references[category][fromBook] = (references[category][fromBook] || 0) + 1;
+          }
+        }
+      });
+
+      displayResults(inputBookName, references);
+    }
+
+    // Function to display results
+    function displayResults(inputBookName, references) {
+      const resultsDiv = document.getElementById('results');
+
+      const getMostReferenced = (books) => {
+        return Object.entries(books).sort((a, b) => b[1] - a[1])[0] || [null, 0];
+      };
+
+      const [mostReferencedOT, otCount] = getMostReferenced(references.oldTestament);
+      const [mostReferencedNT, ntCount] = getMostReferenced(references.newTestament);
+
+      let html = `<h2 class="text-2xl font-semibold mb-4">Results for ${inputBookName}</h2>`;
+      html += `<p class="mb-2">Most referenced <span class="font-bold">Old Testament</span> book: ${mostReferencedOT || 'None'} (${otCount} references)</p>`;
+      html += `<p>Most referenced <span class="font-bold">New Testament</span> book: ${mostReferencedNT || 'None'} (${ntCount} references)</p>`;
+
+      resultsDiv.innerHTML = html;
+    }
+
+    // Function to load the data from the file
+    async function loadData() {
+      try {
+        const response = await fetch('cross_references.txt');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.text();
+      } catch (error) {
+        console.error("Could not load the data:", error);
+        return '';
+      }
+    }
+
+    // Function to parse the loaded data
+    function parseData(dataStr) {
+      const lines = dataStr.split('\n').slice(1); // Skip the header row
+      return lines.filter(line => line.trim() !== '').map(line => {
+        const [fromVerse, toVerse, votes] = line.split('\t');
+        return { fromVerse, toVerse, votes: parseInt(votes) || 0 };
+      });
+    }
+
+    // Event listener for the search button
+    document.getElementById('searchBtn').addEventListener('click', searchCrossReferences);
+  </script>
+</body>
+</html>
